@@ -18,30 +18,33 @@
     color: #aaa;
   }
 
+  /* SDL2 (Emscripten) sizes a RESIZABLE window from the canvas's CSS
+     size, so the wrapper MUST have a real size: 900x650 native, shrinking
+     with the viewport while keeping the aspect ratio. */
   #game-wrap {
     position: relative;
-    display: inline-block;
+    width: min(900px, 100vw);
+    aspect-ratio: 900 / 650;
     line-height: 0;
   }
 
   canvas {
     display: block;
-    /* Scale down on small screens, never scale up past native size */
-    max-width: 100vw;
-    max-height: 100vh;
+    width: 100%;
+    height: 100%;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     cursor: default;
     outline: none;
   }
 
-  /* Make canvas fill the viewport in fullscreen */
-  :fullscreen canvas,
-  :-webkit-full-screen canvas {
-    max-width:  100vw;
-    max-height: 100vh;
-    width:  auto !important;
-    height: auto !important;
+  /* Fullscreen: fill the screen; the game letterboxes internally
+     via SDL_RenderSetLogicalSize. */
+  :fullscreen #game-wrap,
+  :-webkit-full-screen #game-wrap {
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
   }
 
   #controls {
