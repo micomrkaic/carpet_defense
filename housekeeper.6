@@ -1,7 +1,7 @@
 '\" t
 .\" Manual page for housekeeper(6)   (the line above enables tbl)
 .\" Format check:  man ./housekeeper.6
-.TH HOUSEKEEPER 6 "2026-10-30" "housekeeper 1.1.0" "Games Manual"
+.TH HOUSEKEEPER 6 "2026-10-30" "housekeeper 1.2.0" "Games Manual"
 .
 .SH NAME
 housekeeper \- defend a carpet from dripping burgers and spilling martinis
@@ -21,9 +21,19 @@ Anything that reaches the floor stains the carpet.
 .PP
 You are the housekeeper.
 Move along the bottom of the room and shoot the invaders with your spray
-bottle before their droppings ruin the carpet.
+bottle before their droppings ruin the carpet, and mop up the stains that
+do land.
 Four mid-century modern credenzas stand between you and the grid; they
-absorb droppings (and your own shots) and are destroyed after four hits.
+absorb droppings (and your own shots), show the stains, and collapse after
+four hits.
+From time to time a Bloody Mary drifts across the top of the room,
+dropping a single large splash of tomato juice on its way; shooting it is
+worth a bonus.
+.PP
+Clearing the grid starts the next wave: the furniture is restored and you
+gain a life, but the carpet stays as you left it, and the invaders are
+faster and drop more.
+The game ends only when you lose.
 .PP
 The game is rendered entirely with SDL2 primitives and procedurally
 generated 8-bit sound.
@@ -78,6 +88,14 @@ The number of shots that may be in flight at once, and the reload delay
 between shots, depend on the difficulty (see below).
 A yellow bar under the housekeeper shows the reload progress when a delay
 applies.
+Holding the key autofires at the reload rate.
+.TP
+.BR Down ", " S
+Mop.
+Stand still over a stain and hold the key; after about a second the stain
+is gone and you score 5 points.
+Moving, releasing the key, or being hit cancels the mop.
+You cannot fire while mopping.
 .TP
 .B P
 Pause and resume.
@@ -90,14 +108,38 @@ Toggle fullscreen.
 .TP
 .B Esc
 Abandon the game and return to the selection screen.
+.SS Between waves
+.TP
+.BR Enter ", " Space
+Start the next wave at once instead of waiting.
 .SS After a game
 .TP
 .BR R ", " Enter
 Return to the selection screen.
+.SS Gamepad
+Any controller SDL recognises works, and may be plugged in at any time.
+Left stick or D-pad moves (down mops);
+.B A
+fires or confirms,
+.B B
+is Esc,
+.B X
+pauses,
+.B Y
+mutes,
+.B Start
+is Enter and
+.B Back
+toggles fullscreen.
 .
 .SH RULES
-.SS Winning
-Destroy all forty invaders.
+.SS Waves
+Destroying all forty invaders clears the wave.
+The next wave begins after a short pause with new invaders and fresh
+credenzas; the carpet stains, your score and your lives carry over, and you
+gain one life (up to five).
+Each wave the grid starts 10% faster (down to a floor) and one more
+dropping may be in the air at once.
 .SS Losing
 Any one of:
 .IP \(bu 3
@@ -113,12 +155,22 @@ A living invader reaches the carpet.
 l l.
 Martini glass	20 points
 Burger	10 points
+Mopped stain	5 points
+Bloody Mary	50, 100 or 150 points
 .TE
+.PP
+The best score for each difficulty is kept (see
+.BR FILES ).
 .SS Pace
 Each kill speeds up the grid.
 Droppings fall only from the lowest living invader in a column, and the
 number that may be in the air at once grows from one to five as the grid
-thins.
+thins (plus one per wave, to a maximum of six).
+.SS The Bloody Mary
+Every 12 to 24 seconds a Bloody Mary crosses the lane above the grid in a
+random direction and drops one large splash at a random point.
+The splash counts as two stains on the carpet, or two if it hits you.
+Shoot the glass before it leaves the screen for the bonus shown.
 .
 .SH DIFFICULTY
 .TS
@@ -143,6 +195,11 @@ each column, and burgers are the easier targets.
 Stand behind a credenza when several droppings are falling, and do not
 fire until a lane is clear \(em a wasted shot on the harder levels leaves
 you defenceless for over a second.
+Mop during the lull right after a wave starts, while the grid is still
+high and slow; later in a wave a second standing still is a second too
+long.
+Never let the Bloody Mary's splash land: two stains at once is the
+fastest way to fill the meter.
 .
 .SH EXIT STATUS
 .TP
@@ -167,8 +224,16 @@ disables sound entirely on systems with no audio device; the game then
 starts normally and reports the condition once on standard error.
 .
 .SH FILES
-None.
-The game stores nothing on disk.
+.TP
+.I $XDG_STATE_HOME/housekeeper/hiscore
+.TQ
+.I ~/.local/state/housekeeper/hiscore
+Best score for each difficulty, four integers on one line (easy to
+nightmare).
+The directory is created on first save.
+Delete the file to reset the scores.
+The browser build keeps the same four values in the page's
+.IR localStorage .
 .
 .SH BUGS
 The native build caps its frame rate at roughly 60 Hz with a fixed

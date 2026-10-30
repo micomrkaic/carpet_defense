@@ -68,6 +68,32 @@
   }
   #fs-btn:hover { background: #241e40; color: #bb9; }
 
+  /* on-screen controls, shown only on touch devices */
+  #touch {
+    display: none;
+    width: min(900px, 100vw);
+    margin-top: 10px;
+    gap: 8px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body.touch #touch { display: flex; }
+  body.touch #controls { display: none; }
+  #touch button {
+    flex: 1;
+    height: 64px;
+    background: #1a1630;
+    color: #ccb;
+    border: 1px solid #443;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 20px;
+    touch-action: none;
+  }
+  #touch button:active, #touch button.down { background: #3a3060; }
+  #touch .fire { flex: 1.6; color: #ffe060; }
+
   /* spinner shown while wasm loads */
   #spinner {
     position: absolute;
@@ -91,11 +117,44 @@
 
 <div id="controls">
   ← → / A D &nbsp; move &nbsp;|&nbsp; SPACE &nbsp; shoot &nbsp;|&nbsp;
-  P &nbsp; pause &nbsp;|&nbsp; M &nbsp; mute &nbsp;|&nbsp; F &nbsp; fullscreen &nbsp;|&nbsp;
-  ESC &nbsp; menu<br>
-  1 2 3 4 / ↑ ↓ &nbsp; select difficulty &nbsp;|&nbsp; R &nbsp; play again
+  hold ↓ / S &nbsp; mop a stain &nbsp;|&nbsp; P &nbsp; pause &nbsp;|&nbsp;
+  M &nbsp; mute &nbsp;|&nbsp; F &nbsp; fullscreen &nbsp;|&nbsp; ESC &nbsp; menu<br>
+  1 2 3 4 / ↑ ↓ &nbsp; select difficulty &nbsp;|&nbsp; gamepad supported
+</div>
+<div id="touch">
+  <button data-key="ArrowLeft"  data-code="37">◀</button>
+  <button data-key="ArrowDown"  data-code="40">MOP</button>
+  <button data-key=" "          data-code="32" class="fire">FIRE</button>
+  <button data-key="Enter"      data-code="13">↵</button>
+  <button data-key="ArrowRight" data-code="39">▶</button>
 </div>
 <button id="fs-btn" onclick="toggleFS()">⛶ Fullscreen</button>
+
+<script>
+  // ── touch controls: synthesise key events for SDL ───────────
+  if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
+    document.body.classList.add('touch');
+  }
+  function sendKey(type, key, code) {
+    var ev = new KeyboardEvent(type, {
+      key: key, code: code === 32 ? 'Space' : (code === 13 ? 'Enter' : key),
+      keyCode: code, which: code, bubbles: true, cancelable: true
+    });
+    window.dispatchEvent(ev);
+  }
+  document.querySelectorAll('#touch button').forEach(function (b) {
+    var key = b.dataset.key, code = parseInt(b.dataset.code, 10), held = false;
+    var dn = function (e) { e.preventDefault(); if (held) return; held = true;
+                            b.classList.add('down'); sendKey('keydown', key, code); };
+    var up = function (e) { if (e) e.preventDefault(); if (!held) return; held = false;
+                            b.classList.remove('down'); sendKey('keyup', key, code); };
+    b.addEventListener('pointerdown',   dn);
+    b.addEventListener('pointerup',     up);
+    b.addEventListener('pointercancel', up);
+    b.addEventListener('pointerleave',  up);
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  });
+</script>
 
 <script>
   // ── prevent browser scrolling on game keys ──────────────────

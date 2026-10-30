@@ -19,6 +19,8 @@ SDL_LIBS := $(shell sdl2-config --cflags --libs)
 LIBS      = $(SDL_LIBS) -lm
 
 EMCC     ?= emcc
+# Fixed 64 MB heap, no growth: ALLOW_MEMORY_GROWTH on Emscripten 6.x uses a
+# resizable ArrayBuffer, which TextDecoder rejects -> WebGL init crashes.
 EMFLAGS   = -std=c17 -O2 -s USE_SDL=2 -s INITIAL_MEMORY=64MB -s ALLOW_MEMORY_GROWTH=0
 
 PREFIX   ?= $(HOME)/.local
