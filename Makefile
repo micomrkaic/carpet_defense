@@ -19,7 +19,7 @@ SDL_LIBS := $(shell sdl2-config --cflags --libs)
 LIBS      = $(SDL_LIBS) -lm
 
 EMCC     ?= emcc
-EMFLAGS   = -std=c17 -O2 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1
+EMFLAGS   = -std=c17 -O2 -s USE_SDL=2 -s INITIAL_MEMORY=64MB -s ALLOW_MEMORY_GROWTH=0
 
 PREFIX   ?= $(HOME)/.local
 BINDIR    = $(PREFIX)/bin
