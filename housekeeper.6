@@ -1,0 +1,189 @@
+'\" t
+.\" Manual page for housekeeper(6)   (the line above enables tbl)
+.\" Format check:  man ./housekeeper.6
+.TH HOUSEKEEPER 6 "2026-10-30" "housekeeper 1.1.0" "Games Manual"
+.
+.SH NAME
+housekeeper \- defend a carpet from dripping burgers and spilling martinis
+.
+.SH SYNOPSIS
+.B housekeeper
+.RI [ OPTIONS ]
+.
+.SH DESCRIPTION
+.B housekeeper
+is a Space Invaders variant.
+A grid of forty invaders \(em twenty martini glasses in the top two rows and
+twenty burgers in the bottom two \(em marches back and forth across a
+living room, descending one notch each time it reaches a wall.
+The martinis spill drops and the burgers drip blobs of fat.
+Anything that reaches the floor stains the carpet.
+.PP
+You are the housekeeper.
+Move along the bottom of the room and shoot the invaders with your spray
+bottle before their droppings ruin the carpet.
+Four mid-century modern credenzas stand between you and the grid; they
+absorb droppings (and your own shots) and are destroyed after four hits.
+.PP
+The game is rendered entirely with SDL2 primitives and procedurally
+generated 8-bit sound.
+It has no external assets and the same source compiles natively and to
+WebAssembly.
+.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-difficulty " " \fIN\fR
+Start immediately at difficulty
+.I N
+(1 = easy, 2 = medium, 3 = hard, 4 = nightmare), skipping the selection
+screen.
+.TP
+.BR \-f ", " \-\-fullscreen
+Start in fullscreen.
+The 900\(mu650 playfield is letterboxed to the display.
+.TP
+.BR \-m ", " \-\-mute
+Start with sound muted.
+.B M
+toggles sound at any time.
+.TP
+.BR \-h ", " \-\-help
+Print a usage summary and exit.
+.TP
+.BR \-V ", " \-\-version
+Print the version and exit.
+.
+.SH CONTROLS
+.SS Selection screen
+.TP
+.BR Up / Down ", " W / S
+Move the cursor.
+.TP
+.BR 1 \(en 4
+Select that difficulty and start at once.
+.TP
+.BR Enter ", " Space
+Start at the highlighted difficulty.
+.TP
+.B Esc
+Quit.
+.SS In game
+.TP
+.BR Left / Right ", " A / D
+Move the housekeeper.
+.TP
+.B Space
+Fire.
+The number of shots that may be in flight at once, and the reload delay
+between shots, depend on the difficulty (see below).
+A yellow bar under the housekeeper shows the reload progress when a delay
+applies.
+.TP
+.B P
+Pause and resume.
+.TP
+.B M
+Mute and unmute.
+.TP
+.B F
+Toggle fullscreen.
+.TP
+.B Esc
+Abandon the game and return to the selection screen.
+.SS After a game
+.TP
+.BR R ", " Enter
+Return to the selection screen.
+.
+.SH RULES
+.SS Winning
+Destroy all forty invaders.
+.SS Losing
+Any one of:
+.IP \(bu 3
+The soil meter on the left edge fills: thirty droppings have reached the
+carpet.
+.IP \(bu 3
+You lose all three lives.
+A dropping that hits you costs a life and also stains the carpet.
+.IP \(bu 3
+A living invader reaches the carpet.
+.SS Scoring
+.TS
+l l.
+Martini glass	20 points
+Burger	10 points
+.TE
+.SS Pace
+Each kill speeds up the grid.
+Droppings fall only from the lowest living invader in a column, and the
+number that may be in the air at once grows from one to five as the grid
+thins.
+.
+.SH DIFFICULTY
+.TS
+l l l l.
+Level	Shots in flight	Reload	Grid step
+_
+Easy	3	none	1200 ms
+Medium	2	250 ms	900 ms
+Hard	1	600 ms	900 ms
+Nightmare	1	1200 ms	650 ms
+.TE
+.PP
+Reload is the minimum interval between consecutive shots; grid step is the
+interval between invader moves at the start of a game, falling to 100 ms as
+the grid empties.
+.
+.SH STRATEGY
+Thin the grid from the outside in: a narrower grid spends more steps
+between wall bounces and therefore descends more slowly.
+Clear the bottom rows first; droppings come only from the lowest invader in
+each column, and burgers are the easier targets.
+Stand behind a credenza when several droppings are falling, and do not
+fire until a lane is clear \(em a wasted shot on the harder levels leaves
+you defenceless for over a second.
+.
+.SH EXIT STATUS
+.TP
+.B 0
+Normal exit.
+.TP
+.B 1
+SDL could not be initialised or no window or renderer could be created.
+.TP
+.B 2
+Invalid command-line option.
+.
+.SH ENVIRONMENT
+.B housekeeper
+honours the usual SDL2 environment variables, in particular
+.B SDL_VIDEODRIVER
+and
+.BR SDL_AUDIODRIVER .
+Running with
+.B SDL_AUDIODRIVER=dummy
+disables sound entirely on systems with no audio device; the game then
+starts normally and reports the condition once on standard error.
+.
+.SH FILES
+None.
+The game stores nothing on disk.
+.
+.SH BUGS
+The native build caps its frame rate at roughly 60 Hz with a fixed
+16 ms sleep; on displays with a higher refresh rate movement is still
+smooth because all motion is time-based, but presentation is not
+synchronised to the display.
+.PP
+Report bugs at
+.UR https://github.com/micomrkaic/carpet_defense/issues
+.UE .
+.
+.SH AUTHOR
+Mico Mrkaic.
+.
+.SH SEE ALSO
+A browser build of the same source is published with the repository.
+.PP
+.BR sdl2\-config (1)

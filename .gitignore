@@ -1,0 +1,5 @@
+housekeeper
+*.o
+*.zip
+Screenshot_*.png
+.cache/
